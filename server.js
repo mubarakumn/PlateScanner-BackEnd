@@ -33,8 +33,8 @@ app.use('/plate', PlateRoutes)
 
 
 
-// mongoose.connect('mongodb+srv://mubarak725908:Mubarak4321@cluster0.vjos6mx.mongodb.net/PlateScanner?retryWrites=true&w=majority')
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/PlateScanner')
+// mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/PlateScanner')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
