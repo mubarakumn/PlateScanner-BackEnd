@@ -5,11 +5,11 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
-const verifyToken = require('./middlewares/auth');
-const generateAccessToken = require('./GenerateJWT/generateJwt')
-const generateRefreshToken = require('./GenerateJWT/generateJwt')
-const UserRoutes = require('./Routes/UserRoute')
-const PlateRoutes = require('./Routes/PlateRoute')
+const verifyToken = require('../middlewares/auth');
+const generateAccessToken = require('../GenerateJWT/generateJwt')
+const generateRefreshToken = require('../GenerateJWT/generateJwt')
+const UserRoutes = require('../Routes/UserRoute')
+const PlateRoutes = require('../Routes/PlateRoute')
 
 dotenv.config();
 
