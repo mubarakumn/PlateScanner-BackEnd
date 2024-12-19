@@ -60,61 +60,90 @@ const GetPlate = async (req, res) => {
     }
   }
 
-// Update plate status 
+// Update status of a plate number
 const UpdateStatus = async (req, res) => {
-    const { plateNumber } = req.params;
-    const { Status } = req.body;  // Get status from request body
-  
-    if (!Status || !Array.isArray(Status)) {
-      return res.status(400).json({ message: 'Status must be an array.' });
+  try {
+    const { plateNumber, status } = req.params;
+    const { action } = req.query; // Use `action=add` or `action=remove` in the query parameter
+
+    // Validate the status
+    const validStatuses = ['flagged', 'stolen', 'wanted', 'crime', 'clear'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
     }
-  
-    try {
-      // Find the plate and update its status
-      const updatedPlate = await PlateNumberModel.findOneAndUpdate(
-        { PlateNumber: plateNumber },
-        { $set: { Status } },  // Update the status array
-        { new: true }
-      );
-  
-      if (!updatedPlate) {
-        return res.status(404).json({ message: 'Plate number not found.' });
-      }
-  
-      res.status(200).json({ message: 'Status updated successfully!', data: updatedPlate });
-    } catch (error) {
-      console.error('Error updating status:', error);
-      res.status(500).json({ message: 'Failed to update status. Please try again.' });
+
+    let updateOperation;
+    if (action === 'add') {
+      updateOperation = { $addToSet: { Status: status } }; // Add the status if not already present
+    } else if (action === 'remove') {
+      updateOperation = { $pull: { Status: status } }; // Remove the status if present
+    } else {
+      return res.status(400).json({ error: "Invalid action. Use 'action=add' or 'action=remove'." });
     }
+
+    // Update the plate's status
+    const plate = await PlateNumberModel.findOneAndUpdate(
+      { PlateNumber: plateNumber },
+      updateOperation,
+      { new: true } // Return the updated document
+    );
+
+    if (!plate) {
+      return res.status(404).json({ error: 'Plate number not found.' });
+    }
+
+    return res.status(200).json({
+      message: `Status ${action === 'add' ? 'added' : 'removed'} successfully.`,
+      updatedPlate: plate,
+    });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+// Update plate comment 
+const UpdateComments = async (req, res) => {
+  const { plateNumber } = req.params;
+  const { Comment, action } = req.body; // Get comment and action from the request body
+
+  if (!Comment || typeof Comment !== 'string') {
+    return res.status(400).json({ message: 'Comment must be a string.' });
   }
 
-// Update plate status 
-const UpdateComments = async (req, res) => {
-    const { plateNumber } = req.params;
-    const { Comment } = req.body;  // Get comments from request body
-  
-    if (!Comment || !Array.isArray(Comment)) {
-      return res.status(400).json({ message: 'Comment must be an array.' });
-    } 
-  
-    try {
-      // Find the plate and update its comments
-      const updatedPlate = await PlateNumberModel.findOneAndUpdate(
+  if (!['add', 'remove'].includes(action)) {
+    return res.status(400).json({ message: 'Invalid action. Use "add" or "remove".' });
+  }
+
+  try {
+    let updatedPlate;
+
+    if (action === 'add') {
+      // Add the comment to the array if it doesn't already exist
+      updatedPlate = await PlateNumberModel.findOneAndUpdate(
         { PlateNumber: plateNumber },
-        { $set: { Comment } },  // Update the comments array
+        { $addToSet: { Comment } }, // $addToSet ensures no duplicate comments
         { new: true }
       );
-  
-      if (!updatedPlate) {
-        return res.status(404).json({ message: 'Plate number not found.' });
-      }
-  
-      res.status(200).json({ message: 'Comments updated successfully!', data: updatedPlate });
-    } catch (error) {
-      console.error('Error updating comments:', error);
-      res.status(500).json({ message: 'Failed to update comments. Please try again.' });
+    } else if (action === 'remove') {
+      // Remove the comment from the array
+      updatedPlate = await PlateNumberModel.findOneAndUpdate(
+        { PlateNumber: plateNumber },
+        { $pull: { Comment } }, // $pull removes the specified comment
+        { new: true }
+      );
     }
+
+    if (!updatedPlate) {
+      return res.status(404).json({ message: 'Plate number not found.' });
+    }
+
+    res.status(200).json({ message: `Comment ${action}ed successfully!`, data: updatedPlate });
+  } catch (error) {
+    console.error('Error updating comments:', error);
+    res.status(500).json({ message: 'Failed to update comments. Please try again.' });
   }
+};
 
   module.exports = {
   AddPlate,

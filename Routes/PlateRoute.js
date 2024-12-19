@@ -5,7 +5,7 @@ const router = express.Router()
 router.post('/add', AddPlate)
 router.get('/', Plates)
 router.get('/:number', GetPlate)
-router.put('/:plateNumber/update-status', UpdateStatus)
-router.put('/:plateNumber/update-comments', UpdateComments)
+router.put('/:plateNumber/:status', UpdateStatus)
+router.put('/:plateNumber/comments', UpdateComments)
 
 module.exports = router
