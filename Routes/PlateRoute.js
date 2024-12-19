@@ -6,6 +6,6 @@ router.post('/add', AddPlate)
 router.get('/', Plates)
 router.get('/:number', GetPlate)
 router.post('/:plateNumber/:status', UpdateStatus)
-router.post('/:plateNumber/comments', UpdateComments)
+router.post('/comments/:plateNumber', UpdateComments)
 
 module.exports = router

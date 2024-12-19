@@ -104,46 +104,43 @@ const UpdateStatus = async (req, res) => {
 
 // Update plate comment 
 const UpdateComments = async (req, res) => {
-  const { plateNumber } = req.params;
-  const { Comment, action } = req.body; // Get comment and action from the request body
+  const { plateNumber } = req.params; // Plate number from the request URL
+  const { Comment, action } = req.body; // Comment and action from the request body
 
-  if (!Comment || typeof Comment !== 'string') {
-    return res.status(400).json({ message: 'Comment must be a string.' });
-  }
-
-  if (!['add', 'remove'].includes(action)) {
-    return res.status(400).json({ message: 'Invalid action. Use "add" or "remove".' });
+  if (!Comment || !action) {
+      return res.status(400).json({ message: 'Both Comment and action are required.' });
   }
 
   try {
-    let updatedPlate;
+      let updateOperation;
 
-    if (action === 'add') {
-      // Add the comment to the array if it doesn't already exist
-      updatedPlate = await PlateNumberModel.findOneAndUpdate(
-        { PlateNumber: plateNumber },
-        { $addToSet: { Comment } }, // $addToSet ensures no duplicate comments
-        { new: true }
+      if (action === 'add') {
+          updateOperation = { $addToSet: { Comment } }; // Adds the comment if not already present
+      } else if (action === 'remove') {
+          updateOperation = { $pull: { Comment } }; // Removes the specific comment
+      } else {
+          return res.status(400).json({ message: 'Invalid action. Use "add" or "remove".' });
+      }
+
+      // Update the plate document
+      const updatedPlate = await PlateNumberModel.findOneAndUpdate(
+          { PlateNumber: plateNumber },
+          updateOperation,
+          { new: true } // Return the updated document
       );
-    } else if (action === 'remove') {
-      // Remove the comment from the array
-      updatedPlate = await PlateNumberModel.findOneAndUpdate(
-        { PlateNumber: plateNumber },
-        { $pull: { Comment } }, // $pull removes the specified comment
-        { new: true }
-      );
-    }
 
-    if (!updatedPlate) {
-      return res.status(404).json({ message: 'Plate number not found.' });
-    }
+      if (!updatedPlate) {
+          return res.status(404).json({ message: 'Plate number not found.' });
+      }
 
-    res.status(200).json({ message: `Comment ${action}ed successfully!`, data: updatedPlate });
+      res.status(200).json({ message: `Comment ${action}ed successfully!`, data: updatedPlate });
   } catch (error) {
-    console.error('Error updating comments:', error);
-    res.status(500).json({ message: 'Failed to update comments. Please try again.' });
+      console.error('Error updating comments:', error);
+      res.status(500).json({ message: 'Failed to update comments. Please try again.' });
   }
 };
+
+
 
   module.exports = {
   AddPlate,
