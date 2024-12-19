@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 
 app.use(cors({
-  origin: 'exp://192.168.43.154:8081', // Allow only frontend running on this origin
+  // origin: 'exp://192.168.43.154:8081', // Allow only frontend running on this origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 }));
