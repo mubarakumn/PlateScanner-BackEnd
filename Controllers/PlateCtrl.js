@@ -67,7 +67,7 @@ const UpdateStatus = async (req, res) => {
     const { action } = req.query; // Use `action=add` or `action=remove` in the query parameter
 
     // Validate the status
-    const validStatuses = ['flagged', 'stolen', 'wanted', 'crime', 'clear'];
+    const validStatuses = ['traffic', 'flagged', 'stolen', 'wanted', 'crime', 'clear'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
     }
