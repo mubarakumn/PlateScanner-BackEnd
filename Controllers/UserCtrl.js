@@ -110,16 +110,19 @@ const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   if (!email || !otp || !newPassword) {
-    return res.status(400).send('All fields are required');
+    return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(404).send('User not found');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     // Check if OTP is valid
-    if (user.resetOTP !== otp || Date.now() > user.resetOTPExpiry) {
-      return res.status(400).send('Invalid or expired OTP');
+    const currentTimestamp = Date.now();
+    if (user.resetOTP !== otp || currentTimestamp > user.resetOTPExpiry) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
     // Hash the new password
@@ -131,12 +134,13 @@ const resetPassword = async (req, res) => {
     user.resetOTPExpiry = null;
     await user.save();
 
-    res.status(200).send('Password updated successfully');
+    res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal server error');
+    console.error('Error resetting password:', error.message);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
  
 
 
