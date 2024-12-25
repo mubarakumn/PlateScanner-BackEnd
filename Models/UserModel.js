@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'user',
   },
+  resetOTP: {
+    type: String,
+    default: null,
+  },
+  resetOTPExpiry: {
+    type: Date,
+    default: null,
+  },
 });
 const UserModel = mongoose.model('User', userSchema);
 

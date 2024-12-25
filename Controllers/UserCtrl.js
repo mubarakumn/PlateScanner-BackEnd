@@ -1,6 +1,11 @@
 const { generateAccessToken, generateRefreshToken } = require("../GenerateJWT/generateJwt");
 const UserModel = require("../Models/UserModel");
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 // Register Route
 const Register = async (req, res) => {
@@ -58,4 +63,81 @@ const Login = async (req, res) => {
     }
 }
 
-module.exports = {Register,Login}
+// Reset Password Route
+const sendResetOTP = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).send('Email is required');
+
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'User not found' });
+
+    // Generate a random 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Save OTP and expiry in user record
+    user.resetOTP = otp;
+    user.resetOTPExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    // Send email with reset link
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER, // Your email
+        pass: process.env.EMAIL_PASS, // Your email password or app password
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Your Password Reset OTP',
+      text: `Your password reset OTP is: ${otp}. It will expire in 10 minutes.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json('OTP sent successfully');
+  } catch (err) {
+    console.error(error);
+    res.status(500).json('Internal server error');
+  }
+};
+
+// Verify OTP and reset password handler
+const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword) {
+    return res.status(400).send('All fields are required');
+  }
+
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) return res.status(404).send('User not found');
+
+    // Check if OTP is valid
+    if (user.resetOTP !== otp || Date.now() > user.resetOTPExpiry) {
+      return res.status(400).send('Invalid or expired OTP');
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the password and clear OTP fields
+    user.password = hashedPassword;
+    user.resetOTP = null;
+    user.resetOTPExpiry = null;
+    await user.save();
+
+    res.status(200).send('Password updated successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+};
+ 
+
+
+module.exports = {Register,Login, sendResetOTP, resetPassword}
