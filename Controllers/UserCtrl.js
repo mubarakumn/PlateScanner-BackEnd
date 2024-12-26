@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 
-dotenv.config();
+require('dotenv').config();
 
 // Register Route
 const Register = async (req, res) => {
@@ -70,7 +70,11 @@ const sendResetOTP = async (req, res) => {
 
   try {
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'User not found' });
+    
+    if (!user){
+      console.log(`No user found for email: ${email}`);
+      return res.status(400).json({ message: 'User not found' });
+    }
 
     // Generate a random 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -96,11 +100,14 @@ const sendResetOTP = async (req, res) => {
       text: `Your password reset OTP is: ${otp}. It will expire in 10 minutes.`,
     };
 
-    await transporter.sendMail(mailOptions);
-
+    await transporter.sendMail(mailOptions).catch(err => {
+      console.error("Error sending mail:", err);
+      return res.status(500).json({ message: 'Failed to send email' });
+    });
+    
     res.status(200).json('OTP sent successfully');
   } catch (err) {
-    console.error(error);
+    console.error("Error in sendResetOTP:", err);
     res.status(500).json('Internal server error');
   }
 };
