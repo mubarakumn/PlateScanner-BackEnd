@@ -94,7 +94,8 @@ const sendResetOTP = async (req, res) => {
     });
 
     const mailOptions = {
-      from: "noreply@platescanner.com",
+      from: `"Plate Scanner App" <noreply@platescanner.com> <noreply@platescanner.com>`, 
+      replyTo: "noreply@platescanner.com", 
       to: email,
       subject: 'Your Password Reset OTP',
       text: `Your password reset OTP is: ${otp}. It will expire in 10 minutes.`,
