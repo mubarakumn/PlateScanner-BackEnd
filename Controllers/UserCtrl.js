@@ -86,7 +86,7 @@ const sendResetOTP = async (req, res) => {
 
     // Send email with reset link
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: 'Gmail',
       auth: {
         user: process.env.EMAIL_USER, // Your email
         pass: process.env.EMAIL_PASS, // Your email password or app password
@@ -94,7 +94,7 @@ const sendResetOTP = async (req, res) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: "noreply@platescanner.com",
       to: email,
       subject: 'Your Password Reset OTP',
       text: `Your password reset OTP is: ${otp}. It will expire in 10 minutes.`,
@@ -102,7 +102,7 @@ const sendResetOTP = async (req, res) => {
 
     await transporter.sendMail(mailOptions).catch(err => {
       console.error("Error sending mail:", err);
-      return res.status(500).json({ message: 'Failed to send email' });
+      return res.status(500).json({ message: 'Failed to send email' }, email, user, pass);
     });
     
     res.status(200).json('OTP sent successfully');
