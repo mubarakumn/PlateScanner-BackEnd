@@ -2,14 +2,14 @@ const PlateNumberModel = require("../Models/PlateNumberModel");
 
 // POST /plate/add
 const AddPlate = async (req, res) => {
-    const { PlateNumber, ownerName, carModel, Comment } = req.body;
-  
-    if (!PlateNumber || !ownerName || !carModel) {
+    const { plateNumber, ownerName, phone, vehicleType, brand, chassis, color} = req.body;
+
+    if (!plateNumber || !ownerName || !phone || !vehicleType || !brand || !chassis || !color) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
   
     try {
-      const newPlate = new PlateNumberModel({ PlateNumber, ownerName, carModel, Comment });
+      const newPlate = new PlateNumberModel({ plateNumber, ownerName, phone, vehicleType, brand, chassis, color });
       await newPlate.save();
       return res.status(200).json({ message: 'Plate registered successfully!' });
     } catch (error) {
@@ -45,7 +45,7 @@ const Plates = async (req, res) => {
 const GetPlate = async (req, res) => {
     const { number } = req.params;
     try {
-      const plateDetails = await PlateNumberModel.findOne({ PlateNumber: number.toUpperCase() });
+      const plateDetails = await PlateNumberModel.findOne({ plateNumber: number.toUpperCase() });
       if (plateDetails) {
         res.status(200).json({
           success: true,
@@ -83,7 +83,7 @@ const UpdateStatus = async (req, res) => {
 
     // Update the plate's status
     const plate = await PlateNumberModel.findOneAndUpdate(
-      { PlateNumber: plateNumber },
+      { plateNumber: plateNumber },
       updateOperation,
       { new: true } // Return the updated document
     );
@@ -124,7 +124,7 @@ const UpdateComments = async (req, res) => {
 
       // Update the plate document
       const updatedPlate = await PlateNumberModel.findOneAndUpdate(
-          { PlateNumber: plateNumber },
+          { plateNumber: plateNumber },
           updateOperation,
           { new: true } // Return the updated document
       );

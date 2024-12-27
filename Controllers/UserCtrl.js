@@ -9,14 +9,15 @@ require('dotenv').config();
 
 // Register Route
 const Register = async (req, res) => {
-    const { email, password } = req.body;
-    console.log(email, password);
+    const {name, email, password } = req.body;
+    // console.log(email, password);
     try {
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new UserModel({
+            name,
             email,
             password: hashedPassword,
         });
