@@ -36,6 +36,7 @@ const Login = async (req, res) => {
 
     try {
         const user = await UserModel.findOne({ email });
+        console.log(user , "uiiunbi");
         if (!user) return res.status(400).json({ message: 'Invalid email or password' });
 
         const isMatch = await bcrypt.compare(password, user.password);

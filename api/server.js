@@ -62,7 +62,6 @@ app.post('/token', (req, res) => {
 
 // Route to verify token and send back the payload
 app.get('/verify-token', verifyToken, async(req, res) => {
-  // console.log("verifed data", req);
   
   // If the middleware passes, this part of the code is executed
   return res.status(200).json({  
