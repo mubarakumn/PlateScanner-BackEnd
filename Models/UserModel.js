@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
   // subscription
   subscription: {
     type: [String],
+    default: [{title: '',message: '', status: 'active', expiry: '2022-12-31'}]
   },
 });
 const UserModel = mongoose.model('User', userSchema);
