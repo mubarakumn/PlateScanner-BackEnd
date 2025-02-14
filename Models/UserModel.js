@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  // subscription
+  subscription: {
+    type: [String],
+  },
 });
 const UserModel = mongoose.model('User', userSchema);
 

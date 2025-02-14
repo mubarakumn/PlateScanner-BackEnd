@@ -151,7 +151,21 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// checkSubscription
+const checkSubscription = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({ subscription: user.subscription });
+  } catch (error) {
+    console.error('Error checking subscription:', error.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
  
 
 
-module.exports = {Register,Login, sendResetOTP, resetPassword}
+module.exports = {Register,Login, sendResetOTP, resetPassword, checkSubscription}
