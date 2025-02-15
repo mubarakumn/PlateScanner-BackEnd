@@ -153,9 +153,11 @@ const resetPassword = async (req, res) => {
 
 // checkSubscription
 const checkSubscription = async (req, res) => {
-  const { email } = req.body;
+  const  email = req.query.email;
+  console.log(email);   
   try {
     const user = await UserModel.findOne({ email });
+    console.log(user);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

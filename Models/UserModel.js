@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
       type: Date, 
       default: () => {
         const now = new Date();
-        return new Date(now.setMonth(now.getMonth() + 1));
+        return new Date(now.setMonth(now.getMonth() - 1));
       }
     }
   }
