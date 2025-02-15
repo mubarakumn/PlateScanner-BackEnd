@@ -28,10 +28,18 @@ const userSchema = new mongoose.Schema({
   },
   // subscription
   subscription: {
-    type: [String],
-    default: [{title: '',message: '', status: 'active', expiry: '2022-12-31'}]
-  },
+    title: { type: String, default: 'Subscription Ended' },
+    message: { type: String, default: 'Please renew to continue using the app or app will shutdown suddenly!!!' },
+    expiry: { 
+      type: Date, 
+      default: () => {
+        const now = new Date();
+        return new Date(now.setMonth(now.getMonth() + 1));
+      }
+    }
+  }
 });
+
 const UserModel = mongoose.model('User', userSchema);
 
-module.exports = UserModel
+module.exports = UserModel;
